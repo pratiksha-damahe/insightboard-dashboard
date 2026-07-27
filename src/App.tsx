@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { fetchCryptoData } from './services';
 import type { CryptoData } from './services';
+
+const CoinTable = lazy(() => import('./CoinTable'));
 
 function App() {
   const [role, setRole] = useState<'admin' | 'user'>('user');
@@ -24,7 +27,6 @@ function App() {
     };
     loadData();
 
-    // Live update every 30 seconds
     const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -40,7 +42,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <nav className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800">InsightBoard</h1>
         <div className="flex items-center gap-4">
@@ -56,7 +57,6 @@ function App() {
       </nav>
 
       <div className="p-6 max-w-6xl mx-auto">
-        {/* Search bar */}
         <input
           type="text"
           placeholder="Search coins..."
@@ -71,7 +71,6 @@ function App() {
           </div>
         )}
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-5">
             <p className="text-gray-500 text-sm">Total Coins Tracked</p>
@@ -93,7 +92,6 @@ function App() {
           )}
         </div>
 
-        {/* Chart */}
         <div className="bg-white rounded-lg shadow p-5 mb-8">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">
             Top 7 Coins — Live Prices (USD)
@@ -113,43 +111,14 @@ function App() {
           )}
         </div>
 
-        {/* Coin List Table */}
         <div className="bg-white rounded-lg shadow p-5">
           <h2 className="text-lg font-semibold mb-4 text-gray-800">All Coins</h2>
           {loading ? (
             <p className="text-gray-500">Loading coins...</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-gray-500 border-b">
-                  <tr>
-                    <th className="py-2">Coin</th>
-                    <th className="py-2">Price</th>
-                    <th className="py-2">24h Change</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCoins.map((coin) => (
-                    <tr key={coin.id} className="border-b last:border-0">
-                      <td className="py-3 flex items-center gap-2">
-                        <img src={coin.image} alt={coin.name} className="w-6 h-6" />
-                        {coin.name}
-                      </td>
-                      <td className="py-3">${coin.current_price.toLocaleString()}</td>
-                      <td
-                        className={`py-3 font-medium ${
-                          coin.price_change_percentage_24h >= 0
-                            ? 'text-green-600'
-                            : 'text-red-600'
-                        }`}
-                      >
-                        {coin.price_change_percentage_24h?.toFixed(2)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Suspense fallback={<p className="text-gray-500">Loading table component...</p>}>
+              <CoinTable coins={filteredCoins} />
+            </Suspense>
           )}
         </div>
       </div>
