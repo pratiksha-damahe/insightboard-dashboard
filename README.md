@@ -1,4 +1,5 @@
 # InsightBoard 📊
+**[Live Demo](https://insightboard-alpha.vercel.app)**
 
 A real-time cryptocurrency analytics dashboard built with React, TypeScript, and Tailwind CSS. Displays live market data with role-based views, search/filter functionality, and performance-optimized lazy loading.
 
